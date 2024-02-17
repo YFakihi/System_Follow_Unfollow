@@ -9,6 +9,19 @@ use Illuminate\Support\Facades\Hash;
 class UserConroller extends Controller
 {
 
+
+    public function follow($following_id){
+        $following = User::find($following_id);
+        auth()->user()->followings()->attach($following);
+        return redirect('/');
+    }
+
+    public function unfollow($following_id){
+        $following = User::find($following_id);
+        auth()->user()->followings()->detach($following);
+        return redirect('/');
+    }
+
     public function registerform(){
         if(auth()->check()){
             return redirect('/');
@@ -24,16 +37,18 @@ class UserConroller extends Controller
     }
 
     public function store(Request $request){
+
         $this->validate($request, [
             'name' => 'required',
-            'email' => 'required',
-            'passsord' => 'required'
+            'email' => 'required|email',
+            'password' => 'required|min:6',
+
         ]);
+  
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
-            'passsord' => $request->passsord
-            // 'passsord' => Hash::make($request->password)
+            'password' => Hash::make($request->password),
         ]);
         auth()->login($user);
         return redirect('/');
@@ -58,5 +73,8 @@ class UserConroller extends Controller
        auth()->logout();
        return redirect('/');
 }
+
+
+
 }
 
